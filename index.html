@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>КОНВЕРТОР-МЫ</title>
+    <title>ЗАВОД КОНВЕРТОР-М</title>
     <style>
         :root {
             --bg-color: #000000;
             --card-color: #1a64db;
+            --shipped-card-color: #4a4a4c; /* Серый цвет для отгруженных плашек */
             --text-color: #ffffff;
             --sub-text: #a0a0a0;
             --accent-orange: #ff7b00;
@@ -15,61 +16,72 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
-        /* Шапка */
-        .header { padding: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .header-title { font-size: 24px; font-weight: bold; text-transform: uppercase; margin-top: 10px; }
+             .header { padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+               
+        .logo-container { display: flex; align-items: center; justify-content: center; margin-top: -5px; margin-bottom: 5px; height: 36px; }
+        .logo-svg { height: 100%; width: auto; max-width: 100%; }
+        
         .header-subtitle { font-size: 32px; font-weight: bold; margin-top: 10px; display: flex; justify-content: space-between; align-items: baseline; width: 100%; }
         .date-badge { font-size: 16px; color: var(--accent-orange); font-weight: normal; }
-
-        /* Контентная зона */
+               
         .content-screen { flex: 1; padding: 0 20px; overflow-y: auto; display: none; padding-bottom: 100px; }
-        .content-screen.active { display: block; }
-
-        /* Карточки */
-        .object-card { background-color: var(--card-color); border-radius: 14px; padding: 15px; margin-bottom: 12px; display: flex; cursor: pointer; }
+        .content-screen.active { display: block; }        
+      
+        .object-card { background-color: var(--card-color); border-radius: 14px; padding: 15px; margin-bottom: 12px; display: flex; cursor: pointer; transition: background-color 0.2s; }
+        .object-card.shipped { background-color: var(--shipped-card-color); } /* Стиль для серых плашек */
         .card-number { font-size: 22px; font-weight: bold; width: 60px; flex-shrink: 0; }
         .card-info { flex: 1; overflow: hidden; }
         .card-title { font-size: 18px; font-weight: bold; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .card-delivery { font-size: 14px; color: rgba(255,255,255,0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        /* Нижнее меню */
+        
         .bottom-nav { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: #121212; border-radius: 30px; display: flex; padding: 6px; width: 90%; max-width: 400px; border: 1px solid #222; }
         .nav-btn { flex: 1; background: none; border: none; color: var(--sub-text); padding: 12px; font-size: 14px; cursor: pointer; border-radius: 25px; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: 0.2s; }
         .nav-btn.active { background: #262626; color: var(--accent-orange); font-weight: bold; }
         .nav-icon { font-size: 18px; }
-
-        /* Кнопка Плюс */
+        
         .fab-btn { position: fixed; bottom: 100px; right: 30px; width: 60px; height: 60px; background: #1c1c1e; border-radius: 50%; border: none; color: white; font-size: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-
-        /* Модальные окна */
+        
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 10; padding: 20px; }
         .modal-content { background: #1c1c1e; border-radius: 20px; padding: 20px; width: 100%; max-width: 500px; max-height: 85vh; overflow-y: auto; }
         .modal h3 { margin-bottom: 15px; font-size: 20px; text-align: center; }
         
-        /* Формы внутри модалки */
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; color: var(--sub-text); font-size: 14px; }
         .form-group input, .form-group textarea { width: 100%; padding: 12px; background: #2c2c2e; border: none; border-radius: 10px; color: white; font-size: 16px; }
         .btn-block { width: 100%; padding: 12px; background: var(--card-color); border: none; border-radius: 10px; color: white; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .btn-close { background: #3a3a3c; margin-top: 5px; }
-
-        /* Этапы производства в карточке */
-        .stage-item { display: flex; align-items: center; background: #2c2c2e; padding: 12px; border-radius: 10px; margin-bottom: 8px; border: 2px solid transparent; cursor: pointer; transition: 0.2s; }
-        .stage-item.completed { border-color: #34c759; background: rgba(52, 199, 89, 0.1); }
-        .stage-item.current { border-color: var(--accent-orange); background: rgba(255, 123, 0, 0.1); }
+        
+        .stage-container { display: flex; flex-direction: column; background: #2c2c2e; padding: 12px; border-radius: 10px; margin-bottom: 12px; border: 2px solid transparent; transition: 0.2s; }
+        .stage-container.completed { border-color: #34c759; background: rgba(52, 199, 89, 0.05); }
+        .stage-container.current { border-color: var(--accent-orange); background: rgba(255, 123, 0, 0.05); }
+        
+        .stage-item { display: flex; align-items: center; cursor: pointer; }
         .stage-number { width: 25px; font-weight: bold; color: var(--sub-text); }
         .stage-info { flex: 1; }
         .stage-name { font-size: 14px; font-weight: 500; }
-        .stage-date { font-size: 11px; color: var(--sub-text); margin-top: 2px; }
+              
+        .stage-details { margin-top: 10px; padding-top: 10px; border-top: 1px solid #3a3a3c; display: flex; flex-direction: column; gap: 8px; }
+        .stage-fields { display: flex; gap: 8px; }
+        .stage-input-date { width: 130px !important; padding: 6px !important; font-size: 13px !important; background: #1c1c1e !important; border-radius: 6px !important; border: none; color: white; }
+        .stage-input-comment { flex: 1; padding: 6px !important; font-size: 13px !important; background: #1c1c1e !important; border-radius: 6px !important; border: none; color: white; }
     </style>
 </head>
 <body>
-
-    <!-- Шапка приложения -->
-    <div class="header">
+        <div class="header">
         <div style="width: 100%;">
             <span style="color: var(--sub-text); font-size: 14px;">Сент.</span>
-            <div class="header-title" style="text-align: center; margin-top: -15px; font-size: 16px; color: var(--sub-text);">КОНВЕРТОР-МЫ</div>
+            
+            <div class="logo-container">
+                <svg class="logo-svg" viewBox="0 0 300 45" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="25" cy="22" r="18" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+                    <path d="M 12 18 C 12 10, 38 10, 38 22 C 38 34, 12 34, 12 26" fill="none" stroke="#009688" stroke-width="4" stroke-linecap="round"/>
+                    <rect x="17" y="15" width="16" height="14" fill="#000000" rx="2"/>
+                    <path d="M 17 24 Q 25 18, 33 24" fill="none" stroke="#009688" stroke-width="2"/>
+                    
+                <text x="50" y="32" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Impact, sans-serif" font-size="25" font-weight="900" fill="#ffffff" letter-spacing="0.5">ЗАВОД КОНВЕРТОР-М</text>
+                </svg>
+            </div>
+            
             <div class="header-subtitle">
                 <span id="page-title">В работе</span>
                 <span class="date-badge">22 сентября</span>
@@ -77,20 +89,16 @@
         </div>
     </div>
 
-    <!-- ЭКРАН: В работе -->
     <div id="screen-working" class="content-screen active">
         <div id="list-working"></div>
     </div>
 
-    <!-- ЭКРАН: Отгружено -->
     <div id="screen-shipped" class="content-screen">
         <div id="list-shipped"></div>
     </div>
 
-    <!-- Плавающая кнопка ПЛЮС -->
     <button class="fab-btn" onclick="openModal('add-modal')">+</button>
 
-    <!-- НИЖНЕЕ МЕНЮ (Переключатель окон) -->
     <div class="bottom-nav">
         <button class="nav-btn active" id="btn-working" onclick="switchScreen('working')">
             <span class="nav-icon">📅</span>
@@ -102,7 +110,6 @@
         </button>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО: Добавление объекта -->
     <div id="add-modal" class="modal">
         <div class="modal-content">
             <h3>Новый объект</h3>
@@ -123,23 +130,18 @@
         </div>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО: Детали объекта и 12 этапов -->
     <div id="details-modal" class="modal">
         <div class="modal-content">
             <h3 id="modal-obj-title" style="margin-bottom:5px;">Название объекта</h3>
             <p id="modal-obj-meta" style="color:var(--sub-text); text-align:center; font-size:14px; margin-bottom:20px;">Договор № | Комплект</p>
+            <p style="font-size: 13px; color: var(--accent-orange); margin-bottom: 15px; text-align: center;">💡 Нажмите на название этапа, чтобы сделать его текущим</p>
             
-            <p style="font-size: 13px; color: var(--accent-orange); margin-bottom: 10px; text-align: center;">💡 Нажмите на этап, чтобы перевести объект на него</p>
-            
-            <!-- Список 12 плашек-этапов -->
             <div id="stages-list"></div>
-
             <button class="btn-block btn-close" onclick="closeModal('details-modal')" style="margin-top: 15px;">Закрыть</button>
         </div>
     </div>
 
     <script>
-        // Список 12 этапов производства
         const STAGES = [
             "Получение задания", "Разработка схем и чертежей", "Утверждение документации",
             "Слесарные работы", "Работы электриков", "Маркировка", "Наладка оборудования",
@@ -147,12 +149,15 @@
             "Согласование отгрузки", "Упаковка оборудования", "Отгрузка"
         ];
 
-        // Начальные данные (из скриншота)
-        let objects = JSON.parse(localStorage.getItem('prod_objects')) || [
-            { id: 1, number: "258", title: "ПС Нерехта-1", delivery: "2 УЗП-100/40, 1 ЩПТ с ЗИП, 2 СС...", currentStage: 0, history: { 0: "22.09.2026" } },
-            { id: 2, number: "264", title: "ПС Кореновская", delivery: "2 УЗП-80, 1 ЩПТ, 4 ШРОТ, 1 ШПБ...", currentStage: 0, history: { 0: "22.09.2026" } }
-        ];
+        function getTodayISODate() {
+            const d = new Date();
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        }
 
+        let objects = JSON.parse(localStorage.getItem('prod_objects')) || [
+            { id: 1, number: "258", title: "ПС Нерехта-1", delivery: "2 УЗП-100/40, 1 ЩПТ с ЗИП, 2 СС...", currentStage: 0, history: { 0: { date: getTodayISODate(), comment: "" } } },
+            { id: 2, number: "264", title: "ПС Кореновская", delivery: "2 УЗП-80, 1 ЩПТ, 4 ШРОТ, 1 ШПБ...", currentStage: 0, history: { 0: { date: getTodayISODate(), comment: "" } } }
+        ];
         let activeObjectId = null;
 
         function saveAndRender() {
@@ -160,13 +165,11 @@
             renderLists();
         }
 
-        // Переключение экранов В работе / Отгружено
         function switchScreen(screen) {
             document.getElementById('screen-working').classList.remove('active');
             document.getElementById('screen-shipped').classList.remove('active');
             document.getElementById('btn-working').classList.remove('active');
             document.getElementById('btn-shipped').classList.remove('active');
-
             if (screen === 'working') {
                 document.getElementById('screen-working').classList.add('active');
                 document.getElementById('btn-working').classList.add('active');
@@ -178,7 +181,6 @@
             }
         }
 
-        // Отрисовка карточек на экранах
         function renderLists() {
             const listWorking = document.getElementById('list-working');
             const listShipped = document.getElementById('list-shipped');
@@ -187,7 +189,13 @@
 
             objects.forEach(obj => {
                 const card = document.createElement('div');
-                card.className = 'object-card';
+                
+                if (obj.currentStage === 11) {
+                    card.className = 'object-card shipped';
+                } else {
+                    card.className = 'object-card';
+                }
+                
                 card.onclick = () => openDetails(obj.id);
                 card.innerHTML = `
                     <div class="card-number">${obj.number}</div>
@@ -197,7 +205,6 @@
                     </div>
                 `;
 
-                // Если объект на 12-м этапе ("Отгрузка" - индекс 11), он идет в Отгружено
                 if (obj.currentStage === 11) {
                     listShipped.appendChild(card);
                 } else {
@@ -206,27 +213,23 @@
             });
         }
 
-        // Управление модальными окнами
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        // Добавление нового объекта
         function addObject() {
             const number = document.getElementById('new-number').value;
             const title = document.getElementById('new-title').value;
             const delivery = document.getElementById('new-delivery').value;
-
             if (!number || !title) return alert("Пожалуйста, заполните номер договора и название!");
-
+            
             const newObj = {
                 id: Date.now(),
                 number: number,
                 title: title,
                 delivery: delivery || "Комплект не указан",
                 currentStage: 0, 
-                history: { 0: new Date().toLocaleDateString('ru-RU') } 
+                history: { 0: { date: getTodayISODate(), comment: "" } }
             };
-
             objects.push(newObj);
             saveAndRender();
             closeModal('add-modal');
@@ -236,7 +239,6 @@
             document.getElementById('new-delivery').value = "";
         }
 
-        // Открытие карточки объекта с плашками статусов
         function openDetails(id) {
             activeObjectId = id;
             const obj = objects.find(o => o.id === id);
@@ -248,39 +250,62 @@
             openModal('details-modal');
         }
 
-        // Рендер 12 плашек и фиксация дат изменения статусов
         function renderStages(obj) {
             const container = document.getElementById('stages-list');
             container.innerHTML = "";
 
             STAGES.forEach((stageName, index) => {
-                const stageItem = document.createElement('div');
-                stageItem.className = 'stage-item';
+                const containerDiv = document.createElement('div');
+                containerDiv.className = 'stage-container';
                 
-                if (index < obj.currentStage) stageItem.classList.add('completed');
-                if (index === obj.currentStage) stageItem.classList.add('current');
+                if (index < obj.currentStage) containerDiv.classList.add('completed');
+                if (index === obj.currentStage) containerDiv.classList.add('current');
 
-                stageItem.onclick = () => changeStage(index);
+                const stageData = obj.history[index] || { date: "", comment: "" };
 
-                const dateText = obj.history[index] ? `Статус от: ${obj.history[index]}` : "Еще не пройден";
-
-                stageItem.innerHTML = `
-                    <div class="stage-number">${index + 1}</div>
-                    <div class="stage-info">
-                        <div class="stage-name">${stageName}</div>
-                        <div class="stage-date">${dateText}</div>
+                containerDiv.innerHTML = `
+                    <div class="stage-item" onclick="changeStage(${index})">
+                        <div class="stage-number">${index + 1}</div>
+                        <div class="stage-info">
+                            <div class="stage-name">${stageName}</div>
+                        </div>
+                    </div>
+                    <div class="stage-details">
+                        <div class="stage-fields">
+                            <input type="date" class="stage-input-date" 
+                                   value="${stageData.date}" 
+                                   onchange="updateStageData(${index}, 'date', this.value)" placeholder="Дата">
+                            <input type="text" class="stage-input-comment" 
+                                   value="${stageData.comment.replace(/"/g, '&quot;')}" 
+                                   onchange="updateStageData(${index}, 'comment', this.value)" placeholder="Добавить комментарий к этапу...">
+                        </div>
                     </div>
                 `;
-                container.appendChild(stageItem);
+                container.appendChild(containerDiv);
             });
         }
 
-        // Смена этапа (плашки) кликом
+        function updateStageData(stageIndex, field, value) {
+            const obj = objects.find(o => o.id === activeObjectId);
+            if (!obj.history[stageIndex]) {
+                obj.history[stageIndex] = { date: "", comment: "" };
+            }
+            obj.history[stageIndex][field] = value;
+            
+            if (field === 'comment' && !obj.history[stageIndex].date) {
+                obj.history[stageIndex].date = getTodayISODate();
+            }
+            
+            localStorage.setItem('prod_objects', JSON.stringify(objects));
+        }
+
         function changeStage(newStageIndex) {
             const obj = objects.find(o => o.id === activeObjectId);
             
             if (!obj.history[newStageIndex]) {
-                obj.history[newStageIndex] = new Date().toLocaleDateString('ru-RU');
+                obj.history[newStageIndex] = { date: getTodayISODate(), comment: "" };
+            } else if (!obj.history[newStageIndex].date) {
+                obj.history[newStageIndex].date = getTodayISODate();
             }
             
             obj.currentStage = newStageIndex;
@@ -288,7 +313,6 @@
             renderStages(obj);
         }
 
-        // Первый запуск программы
         renderLists();
     </script>
 </body>
