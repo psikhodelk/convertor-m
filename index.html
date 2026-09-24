@@ -6,7 +6,7 @@
  <title>КОНВЕРТОР-МЫ</title>
  <style>
         :root {
-            --bg-color: #121214;
+            --bg-color: #2c2c30;
             --card-color: #009A9A;
             --shipped-card-color: #3a3a3c;
             --text-color: #ffffff;
@@ -37,7 +37,13 @@
         .header-subtitle { font-size: 28px; font-weight: bold; display: flex; justify-content: space-between; align-items: baseline; width: 100%; }
         .date-badge { font-size: 16px; color: var(--accent-orange); font-weight: normal; }
         
-        .content-screen { flex: 1; padding: 0 20px; overflow-y: auto; display: none; padding-bottom: 120px; -webkit-overflow-scrolling: touch; }
+           .content-screen { 
+            flex: 1; 
+            padding: 0 20px; 
+            overflow-y: scroll;
+            display: none; 
+            padding-bottom: 180px;
+            -webkit-overflow-scrolling: touch; }
         .content-screen.active { display: block; }
         
         .object-card { 
@@ -93,10 +99,10 @@
     </style>
 </head>
 <body>
-   <div class="header">
+    <div class="header">
         <div class="logo-container">
-            <img src="logo.png" alt="КОНВЕРТОР-МЫ" class="logo-img" onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='block';">
-            <div id="logo-fallback" style="display:none; font-size:18px; font-weight:bold; letter-spacing:1px;">КОНВЕРТОР-МЫ</div>
+            <img src="logo.png" alt="" class="logo-img">
+            <div class="logo-text">КОНВЕРТОР-МЫ</div>
         </div>
         <div class="header-subtitle">
             <span id="page-title">В работе</span>
@@ -195,7 +201,6 @@
                 document.getElementById('page-title').innerText = "Отгружено";
             }
         }
-
         function renderLists() {
             const listWorking = document.getElementById('list-working');
             const listShipped = document.getElementById('list-shipped');
@@ -322,6 +327,8 @@
             saveAndRender();
             renderStages(obj);
         }
+        const options = { day: 'numeric', month: 'long' };
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('ru-RU', options);
 
         renderLists();
     </script>
